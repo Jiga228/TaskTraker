@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">TaskTracker</string>
+
+    <!-- Buttons -->
+    <string name="button_Login">Sing in</string>
+    <string name="button_SingIn">Sing up</string>
+    <string name="button_offline">Offline</string>
+    <string name="button_Sort">Sort</string>
+    <string name="button_AddTask">Add task</string>
+    <string name="button_YES">Yes</string>
+    <string name="button_NO">No</string>
+
+    <!-- Hints -->
+    <string name="hint_Login">Login</string>
+    <string name="hint_Password">Password</string>
+    <string name="hint_Find">Task name</string>
+    <string name="hint_TaskName">Task name</string>
+    <string name="hint_TaskDescription">Description</string>
+    <string name="hint_Day">Day</string>
+    <string name="hint_Month">Month</string>
+    <string name="hint_Yar">Year</string>
+    <string name="hint_Hour">Hour</string>
+    <string name="hint_Minute">Minute</string>
+
+    <!-- Snackbar -->
+    <string name="snackbar_EnterLogin">Enter login</string>
+    <string name="snackbar_EnterPassword">Enter password</string>
+    <string name="snackbar_InvalidLogin">Incorrect login or password</string>
+    <string name="snackbar_AlredyCreated">This accaunt alredy created</string>
+    <string name="snackbar_InternetError">Something went wrong. Check your internet connection.</string>
+    <string name="snackebar_FailUpdateTaskList">Fail update task list!</string>
+    <string name="snackbar_EnterName">Enter task name</string>
+    <string name="snackbar_EnterDate">Enter task date</string>
+    <string name="snackbar_DataBaseError">Something went wrong.</string>
+
+    <!-- Titles -->
+    <string name="title_AlertRemoveTask">Remove task?</string>
+
+    <!-- Messages -->
+    <string name="message_RemoveTask">Task will remove on all devices.</string>
+</resources>
