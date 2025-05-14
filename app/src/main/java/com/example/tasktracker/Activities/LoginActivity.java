@@ -1,7 +1,9 @@
 package com.example.tasktracker.Activities;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -10,9 +12,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.tasktracker.Answers.LoginAnswer;
 import com.example.tasktracker.Api.ApiFactory;
+import com.example.tasktracker.PublicKeyNames;
 import com.example.tasktracker.R;
 import com.example.tasktracker.databinding.ActivityLoginBinding;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Objects;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Single;
@@ -24,7 +29,12 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LOGIN_ACTIVITY";
     private ActivityLoginBinding binding;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private SharedPreferences sharedPreferences;
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    public static Intent getIntent(Context context) {
+        return new Intent(context, LoginActivity.class);
+    }
 
     @SuppressLint("UnsafeIntentLaunch")
     @Override
@@ -33,6 +43,33 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
+
+        sharedPreferences = getSharedPreferences(PublicKeyNames.TOKEN_LIST, MODE_PRIVATE);
+        String token = sharedPreferences.getString(PublicKeyNames.TOKEN_KEY, "");
+        if(!token.isEmpty())
+        {
+            Disposable disposable = ApiFactory.getApiService()
+                    .checkToken(token)
+                    .observeOn(Schedulers.io()).subscribe(new Consumer<LoginAnswer>() {
+                        @Override
+                        public void accept(LoginAnswer loginAnswer) throws Throwable {
+                            if(loginAnswer.getStatus().equals("ok")) {
+                                Intent intent = MainMenu.getIntent(LoginActivity.this, token);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                sharedPreferences.edit().putString(PublicKeyNames.TOKEN_KEY, "").apply();
+                            }
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Throwable {
+                            Snackbar.make(binding.getRoot(), R.string.snackbar_InternetError, Snackbar.LENGTH_LONG).show();
+                            Log.e(TAG, Objects.requireNonNull(throwable.getMessage()));
+                        }
+                    });
+            compositeDisposable.add(disposable);
+        }
 
         binding.buttonSingIn.setOnClickListener(v->{ SingIn(); });
 
@@ -74,6 +111,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         String token = loginAnswer.getToken();
+                        sharedPreferences.edit().putString(PublicKeyNames.TOKEN_KEY, token).apply();
                         OpenMainMenu(token);
                     }
                 }, new Consumer<Throwable>() {
@@ -115,6 +153,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         String token = loginAnswer.getToken();
+                        sharedPreferences.edit().putString(PublicKeyNames.TOKEN_KEY, token).apply();
                         OpenMainMenu(token);
                     }
                 }, new Consumer<Throwable>() {
@@ -125,6 +164,12 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
         compositeDisposable.add(disposable);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        compositeDisposable.dispose();
     }
 
     private void OpenMainMenu(String token)

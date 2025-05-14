@@ -17,7 +17,9 @@
         android:theme="@style/Theme.TaskTracker"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
+        <activity
+            android:name=".Activities.EditTask"
+            android:exported="false" />
         <activity
             android:name=".Activities.AddNewTask"
             android:exported="false" />

@@ -1,7 +1,9 @@
 package com.example.tasktracker.Activities;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -15,15 +17,16 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.tasktracker.Activities.ViewModels.MainMenuViewModel;
 import com.example.tasktracker.Answers.Task;
 import com.example.tasktracker.Api.ApiFactory;
 import com.example.tasktracker.Api.TaskRepository;
+import com.example.tasktracker.PublicKeyNames;
 import com.example.tasktracker.R;
 import com.example.tasktracker.databinding.ActivityMainMenuBinding;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,14 +36,12 @@ import retrofit2.Response;
 
 public class MainMenu extends AppCompatActivity {
     private static final String TAG = "MainMenu";
-    private static final String TOKEN_KEY = "TOKEN";
 
     private ActivityMainMenuBinding binding;
     private String token;
     private TaskAdapter taskAdapter;
     private MainMenuViewModel viewModel;
-
-    private List<Task> taskListCache;
+    private List<Task> taskListCache = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,18 +49,26 @@ public class MainMenu extends AppCompatActivity {
         binding = ActivityMainMenuBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        token = getIntent().getStringExtra(TOKEN_KEY);
-        if(token == null)
-        {
+        token = getIntent().getStringExtra(PublicKeyNames.TOKEN_KEY);
+        if (token == null) {
             Log.e(TAG, "Token is empty");
             return;
         }
         taskAdapter = new TaskAdapter();
         binding.scrollTask.setAdapter(taskAdapter);
 
-        binding.buttonAddNewTask.setOnClickListener(v->{
+        binding.buttonAddNewTask.setOnClickListener(v -> {
             Intent intent = AddNewTask.getIntent(this, token);
             startActivity(intent);
+        });
+        taskAdapter.setOnItemClick(new TaskAdapter.OnItemClick() {
+            @Override
+            public void Click(int position) {
+                Task task = taskAdapter.getTaskList().get(position);
+                @SuppressLint("UnsafeIntentLaunch")
+                Intent intent = EditTask.getIntent(MainMenu.this, token, task.getID());
+                startActivity(intent);
+            }
         });
         viewModel = new ViewModelProvider(this).get(MainMenuViewModel.class);
 
@@ -72,8 +81,8 @@ public class MainMenu extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 String find = binding.findLine.getText().toString();
-                if(find.isEmpty()) {
-                    if(token.equals("null")) {
+                if (find.isEmpty()) {
+                    if (token.equals("null")) {
                         TaskRepository.newInstance(getApplication()).taskDao().getTaskList().observe(MainMenu.this, new Observer<List<Task>>() {
                             @Override
                             public void onChanged(List<Task> tasks) {
@@ -81,8 +90,7 @@ public class MainMenu extends AppCompatActivity {
                                 taskAdapter.setTaskList(tasks);
                             }
                         });
-                    }
-                    else {
+                    } else {
                         viewModel.OnlineUpdateList(token);
                     }
                 }
@@ -112,121 +120,138 @@ public class MainMenu extends AppCompatActivity {
             }
         });
 
-        // offline
-        if(token.equals("null")) {
-            Offline();
+        binding.buttonSingOut.setOnClickListener(v -> {
+            getSharedPreferences(PublicKeyNames.TOKEN_LIST, MODE_PRIVATE).
+                    edit().
+                    remove(PublicKeyNames.TOKEN_KEY).
+                    apply();
+
+            @SuppressLint("UnsafeIntentLaunch")
+            Intent intent = LoginActivity.getIntent(MainMenu.this);
+            startActivity(intent);
+            finish();
+        });
+
+            // offline
+            if (token.equals("null")) {
+                Offline();
+            }
+            //online
+            else {
+                Online();
+            }
         }
-        //online
-        else {
-            Online();
-        }
-    }
 
-    public void Offline() {
-        viewModel.getOnLoad().observe(this, new Observer<List<Task>>() {
-            @Override
-            public void onChanged(List<Task> tasks) {
-                taskListCache = tasks;
-                taskAdapter.setTaskList(tasks);
-            }
-        });
-
-        ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-
-                Task task = taskAdapter.getItem(position);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        TaskRepository.newInstance(getApplication()).taskDao().delete(task);
-                    }
-                }).start();
-                taskAdapter.removeItemByPosition(position);
-            }
-        });
-        helper.attachToRecyclerView(binding.scrollTask);
-    }
-
-    private void Online() {
-
-        viewModel.getOnLoad().observe(this, new Observer<List<Task>>() {
-            @Override
-            public void onChanged(List<Task> tasks) {
-                taskListCache = tasks;
-                taskAdapter.setTaskList(tasks);
-            }
-        });
-        viewModel.onFail().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Snackbar.make(binding.getRoot(), R.string.snackbar_InternetError, Snackbar.LENGTH_LONG).show();
-                Log.w(TAG, s);
-            }
-        });
-
-        ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-
-                Task task = taskAdapter.getItem(position);
-                ApiFactory.getApiService().removeTask(token, task.getID()).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                        Task task = taskAdapter.getItem(position);
-                        taskAdapter.removeItemByPosition(position);
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<Void> call, @NonNull Throwable throwable) {
-                        Snackbar.make(binding.getRoot(), R.string.snackbar_InternetError, Snackbar.LENGTH_LONG).show();
-                        Log.w(TAG, Objects.requireNonNull(throwable.getMessage()));
-                    }
-                });
-            }
-        });
-        helper.attachToRecyclerView(binding.scrollTask);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(token.equals("null")) {
-            TaskRepository.newInstance(getApplication()).taskDao().getTaskList().observe(this, new Observer<List<Task>>() {
+        public void Offline () {
+            viewModel.getOnLoad().observe(this, new Observer<List<Task>>() {
                 @Override
                 public void onChanged(List<Task> tasks) {
                     taskListCache = tasks;
                     taskAdapter.setTaskList(tasks);
                 }
             });
-        }
-        else {
-            viewModel.OnlineUpdateList(token);
-        }
-    }
 
-    public static Intent getIntent(Context context, String token) {
-        Intent intent = new Intent(context, MainMenu.class);
-        intent.putExtra(TOKEN_KEY, token);
-        return intent;
-    }
+            ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                    ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView,
+                                      @NonNull RecyclerView.ViewHolder viewHolder,
+                                      @NonNull RecyclerView.ViewHolder target) {
+                    return false;
+                }
 
-}
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    int position = viewHolder.getAdapterPosition();
+
+                    Task task = taskAdapter.getItem(position);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            TaskRepository.newInstance(getApplication()).taskDao().delete(task);
+                            for (int i = 0; i < taskListCache.size(); ++i) {
+                                if (taskListCache.get(i).getID() == task.getID()) {
+                                    taskListCache.remove(i);
+                                    break;
+                                }
+                            }
+                        }
+                    }).start();
+                    taskAdapter.removeItemByPosition(position);
+                }
+            });
+            helper.attachToRecyclerView(binding.scrollTask);
+        }
+
+        private void Online () {
+
+            viewModel.getOnLoad().observe(this, new Observer<List<Task>>() {
+                @Override
+                public void onChanged(List<Task> tasks) {
+                    taskListCache = tasks;
+                    taskAdapter.setTaskList(tasks);
+                }
+            });
+            viewModel.onFail().observe(this, new Observer<String>() {
+                @Override
+                public void onChanged(String s) {
+                    Snackbar.make(binding.getRoot(), R.string.snackbar_InternetError, Snackbar.LENGTH_LONG).show();
+                    Log.w(TAG, s);
+                }
+            });
+
+            ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                    ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView,
+                                      @NonNull RecyclerView.ViewHolder viewHolder,
+                                      @NonNull RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    int position = viewHolder.getAdapterPosition();
+
+                    Task task = taskAdapter.getItem(position);
+                    ApiFactory.getApiService().removeTask(token, task.getID()).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                            Task task = taskAdapter.getItem(position);
+                            taskAdapter.removeItemByPosition(position);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<Void> call, @NonNull Throwable throwable) {
+                            Snackbar.make(binding.getRoot(), R.string.snackbar_InternetError, Snackbar.LENGTH_LONG).show();
+                            Log.w(TAG, Objects.requireNonNull(throwable.getMessage()));
+                        }
+                    });
+                }
+            });
+            helper.attachToRecyclerView(binding.scrollTask);
+        }
+
+        @Override
+        protected void onResume () {
+            super.onResume();
+            if (token.equals("null")) {
+                TaskRepository.newInstance(getApplication()).taskDao().getTaskList().observe(this, new Observer<List<Task>>() {
+                    @Override
+                    public void onChanged(List<Task> tasks) {
+                        taskListCache = tasks;
+                        taskAdapter.setTaskList(tasks);
+                    }
+                });
+            } else {
+                viewModel.OnlineUpdateList(token);
+            }
+        }
+
+        public static Intent getIntent (Context context, String token){
+            Intent intent = new Intent(context, MainMenu.class);
+            intent.putExtra(PublicKeyNames.TOKEN_KEY, token);
+            return intent;
+        }
+
+    }

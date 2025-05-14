@@ -1,4 +1,4 @@
-package com.example.tasktracker.Activities;
+package com.example.tasktracker.Activities.ViewModels;
 
 import android.app.Application;
 import android.util.Log;
@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import com.example.tasktracker.Answers.Task;
 import com.example.tasktracker.Api.ApiFactory;
@@ -38,7 +37,7 @@ public class AddItemViewModel extends AndroidViewModel {
 
     public void OnlineSaveData(Task task, String token) {
 
-        Call<Void> send = ApiFactory.getApiService().addTask(token, task);
+        Call<Void> send = ApiFactory.getApiService().editTask(token, task);
         send.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {

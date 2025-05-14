@@ -9,7 +9,7 @@
     <string name="button_NO">No</string>
     <string name="hint_Login">Login</string>
     <string name="hint_Password">Password</string>
-    <string name="hint_Find">Task name</string>
+    <string name="hint_Find">Name or description</string>
     <string name="hint_TaskName">Task name</string>
     <string name="hint_TaskDescription">Description</string>
     <string name="hint_Minute">Minute</string>
@@ -22,8 +22,7 @@
     <string name="snackbar_EnterName">Enter task name</string>
     <string name="snackbar_EnterDate">Enter task date</string>
     <string name="snackbar_DataBaseError">Something went wrong.</string>
-    <string name="title_AlertRemoveTask">Remove task?</string>
-    <string name="message_RemoveTask">Task will remove on all devices.</string>
+    <string name="button_editTask">Edit task</string>
     <string name="button_YES">Yes</string>
     <string name="hint_Day">Day</string>
     <string name="hint_Month">Month</string>

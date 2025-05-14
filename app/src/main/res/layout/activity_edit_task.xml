@@ -28,8 +28,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="5sp"/>
     <Button
-        android:id="@+id/AddTask"
-        android:text="@string/button_AddTask"
+        android:id="@+id/btnEditTask"
+        android:text="@string/button_editTask"
         android:textSize="20sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

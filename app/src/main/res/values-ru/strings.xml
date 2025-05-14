@@ -9,7 +9,7 @@
     <string name="button_NO">Нет</string>
     <string name="hint_Login">Логин</string>
     <string name="hint_Password">Пароль</string>
-    <string name="hint_Find">Название задачи</string>
+    <string name="hint_Find">Название или описание</string>
     <string name="hint_TaskName">Название задачи</string>
     <string name="hint_TaskDescription">Описание</string>
     <string name="hint_Minute">Минута</string>
@@ -22,8 +22,7 @@
     <string name="snackbar_EnterName">Введите назвние</string>
     <string name="snackbar_EnterDate">Введите дату</string>
     <string name="snackbar_DataBaseError">Что-то пошло не так</string>
-    <string name="title_AlertRemoveTask">Удалить задачу?</string>
-    <string name="message_RemoveTask">Задача удалится на всех устройствах.</string>
+    <string name="button_editTask">Редакировать</string>
     <string name="button_YES">Да</string>
     <string name="hint_Day">День</string>
     <string name="hint_Month">Месяц</string>

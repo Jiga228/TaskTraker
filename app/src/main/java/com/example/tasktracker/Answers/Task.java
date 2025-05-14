@@ -30,10 +30,10 @@ public class Task implements Serializable {
     }
 
     @Ignore
-    public Task(long ID, String TaskName, String TaskDescription, String TaskData) {
+    public Task(long ID, String TaskName, String TaskDescription, String TaskDate) {
         this.TaskName = TaskName;
         this.TaskDescription = TaskDescription;
-        this.TaskDate = TaskData;
+        this.TaskDate = TaskDate;
         this.ID = ID;
     }
 

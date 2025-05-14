@@ -18,6 +18,9 @@ public interface TaskDao {
     @Query("SELECT * FROM task_room")
     LiveData<List<Task>> getTaskList();
 
+    @Query("SELECT * FROM task_room ORDER BY (:id)")
+    LiveData<Task> getTask(long id);
+
     @Query("DELETE FROM task_room")
     void DropTable();
 

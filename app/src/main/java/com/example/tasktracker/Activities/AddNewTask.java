@@ -1,28 +1,32 @@
 package com.example.tasktracker.Activities;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.DatePicker;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.tasktracker.Activities.ViewModels.AddItemViewModel;
 import com.example.tasktracker.Answers.Task;
+import com.example.tasktracker.PublicKeyNames;
 import com.example.tasktracker.R;
 import com.example.tasktracker.databinding.ActivityAddNewTaskBinding;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Random;
 
-public class AddNewTask extends AppCompatActivity {
+public class AddNewTask extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
     private static final String TAG = "ADD_NEW_TASK";
-    private static final String TOKEN_KEY = "TOKEN";
 
     private ActivityAddNewTaskBinding binding;
     private static String token;
     private AddItemViewModel viewModel;
+    private String stringDate = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,12 +34,19 @@ public class AddNewTask extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(binding.getRoot());
 
-        token = getIntent().getStringExtra(TOKEN_KEY);
+        token = getIntent().getStringExtra(PublicKeyNames.TOKEN_KEY);
         if(token == null)
         {
             Log.w(TAG, "Token is null");
             return;
         }
+
+
+        binding.btnDatePick.setOnClickListener(v->{
+            DatePickerFragment fragment;
+            fragment = new DatePickerFragment();
+            fragment.show(getSupportFragmentManager(), "DATE PICK");
+        });
 
         viewModel = new ViewModelProvider(this).get(AddItemViewModel.class);
         viewModel.getClose().observe(this, new Observer<Boolean>() {
@@ -60,19 +71,18 @@ public class AddNewTask extends AppCompatActivity {
         binding.AddTask.setOnClickListener(v->{
             String name = binding.TaskName.getText().toString();
             String description = binding.TaskDescription.getText().toString();
-            String date = getDate();
 
             if(name.isEmpty()) {
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterName, Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            if(date.isEmpty()) {
+            if(stringDate.isEmpty()) {
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterDate, Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
-            long ID = generateID(name, description, date);
-            Task task = new Task(ID, name, description, date);
+            long ID = generateID(name, description, stringDate);
+            Task task = new Task(ID, name, description, stringDate);
             viewModel.OfflineSaveData(task);
         });
     }
@@ -88,7 +98,7 @@ public class AddNewTask extends AppCompatActivity {
         binding.AddTask.setOnClickListener(v->{
             String name = binding.TaskName.getText().toString();
             String description = binding.TaskDescription.getText().toString();
-            String date = getDate();
+            String date = binding.btnDatePick.getText().toString();
 
             if(name.isEmpty()) {
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterName, Snackbar.LENGTH_SHORT).show();
@@ -105,16 +115,6 @@ public class AddNewTask extends AppCompatActivity {
         });
     }
 
-    private String getDate() {
-        String day = binding.day.getText().toString();
-        String month = binding.month.getText().toString();
-        String year = binding.year.getText().toString();
-        String minute = binding.minute.getText().toString();
-        String hour = binding.hour.getText().toString();
-
-        return day + '.' + month + '.' + year + ' ' + minute + ':' + hour;
-    }
-
     private long generateID(String name, String Description, String date) {
         Random rand = new Random();
 
@@ -129,7 +129,15 @@ public class AddNewTask extends AppCompatActivity {
 
     public static Intent getIntent(Context context, String token) {
         Intent intent = new Intent(context, AddNewTask.class);
-        intent.putExtra(TOKEN_KEY, token);
+        intent.putExtra(PublicKeyNames.TOKEN_KEY, token);
         return intent;
+    }
+
+    @Override
+    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+        stringDate = Integer.toString(day) + '.'
+                   + Integer.toString(month) + '.'
+                   + Integer.toString(year);
+        binding.btnDatePick.setText(stringDate);
     }
 }
