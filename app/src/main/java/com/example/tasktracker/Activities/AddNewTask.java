@@ -1,17 +1,20 @@
 package com.example.tasktracker.Activities;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.DatePicker;
+import android.widget.TimePicker;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.tasktracker.Activities.ViewModels.AddItemViewModel;
+import com.example.tasktracker.Activities.ViewModels.TimePickerFragment;
 import com.example.tasktracker.Answers.Task;
 import com.example.tasktracker.PublicKeyNames;
 import com.example.tasktracker.R;
@@ -20,13 +23,14 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Random;
 
-public class AddNewTask extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class AddNewTask extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     private static final String TAG = "ADD_NEW_TASK";
 
     private ActivityAddNewTaskBinding binding;
     private static String token;
     private AddItemViewModel viewModel;
     private String stringDate = "";
+    private String stringTime = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +45,13 @@ public class AddNewTask extends AppCompatActivity implements DatePickerDialog.On
             return;
         }
 
-
         binding.btnDatePick.setOnClickListener(v->{
-            DatePickerFragment fragment;
-            fragment = new DatePickerFragment();
+            DatePickerFragment fragment = new DatePickerFragment();
             fragment.show(getSupportFragmentManager(), "DATE PICK");
+        });
+        binding.btnTimePick.setOnClickListener(v->{
+            TimePickerFragment fragment = new TimePickerFragment();
+            fragment.show(getSupportFragmentManager(), "TIME PICKER");
         });
 
         viewModel = new ViewModelProvider(this).get(AddItemViewModel.class);
@@ -80,9 +86,15 @@ public class AddNewTask extends AppCompatActivity implements DatePickerDialog.On
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterDate, Snackbar.LENGTH_SHORT).show();
                 return;
             }
+            if(stringTime.isEmpty()) {
+                Snackbar.make(binding.getRoot(), R.string.snackbar_EnterDate, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
 
-            long ID = generateID(name, description, stringDate);
-            Task task = new Task(ID, name, description, stringDate);
+            String dateTime = stringDate + ' ' + stringTime;
+
+            long ID = generateID(name, description, dateTime);
+            Task task = new Task(ID, name, description, dateTime);
             viewModel.OfflineSaveData(task);
         });
     }
@@ -98,19 +110,25 @@ public class AddNewTask extends AppCompatActivity implements DatePickerDialog.On
         binding.AddTask.setOnClickListener(v->{
             String name = binding.TaskName.getText().toString();
             String description = binding.TaskDescription.getText().toString();
-            String date = binding.btnDatePick.getText().toString();
+
 
             if(name.isEmpty()) {
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterName, Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            if(date.isEmpty()) {
+            if(stringDate.isEmpty()) {
+                Snackbar.make(binding.getRoot(), R.string.snackbar_EnterDate, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
+            if(stringTime.isEmpty()) {
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterDate, Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
-            long ID = generateID(name, description, date);
-            Task task = new Task(ID, name, description, date);
+            String dateTime = stringDate + ' ' + stringTime;
+
+            long ID = generateID(name, description, dateTime);
+            Task task = new Task(ID, name, description, dateTime);
             viewModel.OnlineSaveData(task, token);
         });
     }
@@ -139,5 +157,11 @@ public class AddNewTask extends AppCompatActivity implements DatePickerDialog.On
                    + Integer.toString(month) + '.'
                    + Integer.toString(year);
         binding.btnDatePick.setText(stringDate);
+    }
+
+    @Override
+    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+        stringTime = Integer.toString(hour) + ':' + Integer.toString(minute);
+        binding.btnTimePick.setText(stringTime);
     }
 }

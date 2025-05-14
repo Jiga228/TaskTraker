@@ -21,6 +21,7 @@
     <string name="snackebar_FailUpdateTaskList">Неудалось обновить список задач!</string>
     <string name="snackbar_EnterName">Введите назвние</string>
     <string name="snackbar_EnterDate">Введите дату</string>
+    <string name="snackbar_EnterTime">Введите время</string>
     <string name="snackbar_DataBaseError">Что-то пошло не так</string>
     <string name="button_editTask">Редакировать</string>
     <string name="button_YES">Да</string>

@@ -21,6 +21,7 @@
     <string name="snackebar_FailUpdateTaskList">Fail update task list!</string>
     <string name="snackbar_EnterName">Enter task name</string>
     <string name="snackbar_EnterDate">Enter task date</string>
+    <string name="snackbar_EnterTime">Enter time</string>
     <string name="snackbar_DataBaseError">Something went wrong.</string>
     <string name="button_editTask">Edit task</string>
     <string name="button_YES">Yes</string>

@@ -1,23 +1,26 @@
 package com.example.tasktracker.Activities;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.DatePicker;
+import android.widget.TimePicker;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 
 import com.example.tasktracker.Activities.ViewModels.EditTaskViewModel;
+import com.example.tasktracker.Activities.ViewModels.TimePickerFragment;
 import com.example.tasktracker.Answers.Task;
 import com.example.tasktracker.PublicKeyNames;
 import com.example.tasktracker.R;
 import com.example.tasktracker.databinding.ActivityEditTaskBinding;
 import com.google.android.material.snackbar.Snackbar;
 
-public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     private static final String TAG = "EDIT_TASK";
     private static final String TASK_ID_KEY = "TASK_ID";
 
@@ -26,6 +29,7 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
     private String token;
     private long taskID = -1;
     private String taskDateString;
+    private String taskTimeString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +45,13 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
             return;
         }
 
-        binding.btnDatePick.setOnClickListener(v->{ // <-----
-            DatePickerFragment fragment;
-            fragment = new DatePickerFragment();
+        binding.btnDatePick.setOnClickListener(v->{
+            DatePickerFragment fragment = new DatePickerFragment();
             fragment.show(getSupportFragmentManager(), "DATE PICK");
+        });
+        binding.btnTimePick.setOnClickListener(v->{
+            TimePickerFragment fragment = new TimePickerFragment();
+            fragment.show(getSupportFragmentManager(), "TIME PICKER");
         });
 
         viewModel.isLoading().observe(this, new Observer<Task>() {
@@ -52,8 +59,12 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
             public void onChanged(Task task) {
                 binding.TaskName.setText(task.getTaskName());
                 binding.TaskDescription.setText(task.getTaskDescription());
-                taskDateString = task.getTaskDate();
+                String dateTime = task.getTaskDate();
+                String[] buf = dateTime.split(" ");
+                taskDateString = buf[0];
+                taskTimeString = buf[1];
                 binding.btnDatePick.setText(taskDateString);
+                binding.btnTimePick.setText(taskTimeString);
             }
         });
         viewModel.getClose().observe(this, new Observer<Boolean>() {
@@ -87,7 +98,7 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
             String name = binding.TaskName.getText().toString();
             String description = binding.TaskDescription.getText().toString();
 
-            Task task = new Task(taskID, name, description, taskDateString);
+            Task task = new Task(taskID, name, description, taskDateString + ' ' +taskTimeString);
             viewModel.OfflineSaveData(task);
         });
     }
@@ -97,7 +108,7 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
             String name = binding.TaskName.getText().toString();
             String description = binding.TaskDescription.getText().toString();
 
-            Task task = new Task(taskID, name, description, taskDateString);
+            Task task = new Task(taskID, name, description, taskDateString + ' ' +taskTimeString);
             viewModel.OnlineSaveData(task, token);
         });
         viewModel.getLiveDataFail().observe(this, new Observer<String>() {
@@ -124,5 +135,11 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
                        + Integer.toString(month) + '.'
                        + Integer.toString(year);
         binding.btnDatePick.setText(taskDateString);
+    }
+
+    @Override
+    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+        taskTimeString = Integer.toString(hour) + ':' + Integer.toString(minute);
+        binding.btnTimePick.setText(taskTimeString);
     }
 }
