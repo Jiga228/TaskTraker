@@ -3,7 +3,6 @@ package com.example.tasktracker.Activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -38,7 +37,8 @@ public class MainMenu extends AppCompatActivity {
     private static final String TAG = "MainMenu";
 
     private ActivityMainMenuBinding binding;
-    private String token;
+    private String login;
+    private String password;
     private TaskAdapter taskAdapter;
     private MainMenuViewModel viewModel;
     private List<Task> taskListCache = new ArrayList<>();
@@ -49,16 +49,11 @@ public class MainMenu extends AppCompatActivity {
         binding = ActivityMainMenuBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        token = getIntent().getStringExtra(PublicKeyNames.TOKEN_KEY);
-        if (token == null) {
-            Log.e(TAG, "Token is empty");
-            return;
-        }
         taskAdapter = new TaskAdapter();
         binding.scrollTask.setAdapter(taskAdapter);
 
         binding.buttonAddNewTask.setOnClickListener(v -> {
-            Intent intent = AddNewTask.getIntent(this, token);
+            Intent intent = AddNewTask.getIntent(this, login, password);
             startActivity(intent);
         });
         taskAdapter.setOnItemClick(new TaskAdapter.OnItemClick() {
@@ -66,7 +61,7 @@ public class MainMenu extends AppCompatActivity {
             public void Click(int position) {
                 Task task = taskAdapter.getTaskList().get(position);
                 @SuppressLint("UnsafeIntentLaunch")
-                Intent intent = EditTask.getIntent(MainMenu.this, token, task.getID());
+                Intent intent = EditTask.getIntent(MainMenu.this, login, password, task.getId());
                 startActivity(intent);
             }
         });
@@ -82,7 +77,7 @@ public class MainMenu extends AppCompatActivity {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 String find = binding.findLine.getText().toString();
                 if (find.isEmpty()) {
-                    if (token.equals("null")) {
+                    if (login.equals("null")) {
                         TaskRepository.newInstance(getApplication()).taskDao().getTaskList().observe(MainMenu.this, new Observer<List<Task>>() {
                             @Override
                             public void onChanged(List<Task> tasks) {
@@ -91,7 +86,7 @@ public class MainMenu extends AppCompatActivity {
                             }
                         });
                     } else {
-                        viewModel.OnlineUpdateList(token);
+                        viewModel.OnlineUpdateList(login, password);
                     }
                 }
                 new Thread(new Runnable() {
@@ -99,7 +94,7 @@ public class MainMenu extends AppCompatActivity {
                     public void run() {
                         List<Task> searchList = new ArrayList<>();
                         for (int i = 0; i < taskListCache.size(); i++) {
-                            if (taskListCache.get(i).getTaskName().toLowerCase().contains(charSequence) ||
+                            if (taskListCache.get(i).getTaskTime().toLowerCase().contains(charSequence) ||
                                     taskListCache.get(i).getTaskDescription().toLowerCase().contains(charSequence)) {
                                 searchList.add(taskListCache.get(i));
                             }
@@ -123,135 +118,130 @@ public class MainMenu extends AppCompatActivity {
         binding.buttonSingOut.setOnClickListener(v -> {
             getSharedPreferences(PublicKeyNames.TOKEN_LIST, MODE_PRIVATE).
                     edit().
-                    remove(PublicKeyNames.TOKEN_KEY).
+                    remove(PublicKeyNames.LOGIN_KEY).
+                    remove(PublicKeyNames.PASSWORD_KEY).
                     apply();
 
             @SuppressLint("UnsafeIntentLaunch")
-            Intent intent = LoginActivity.getIntent(MainMenu.this);
+            Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
         });
 
-            // offline
-            if (token.equals("null")) {
-                Offline();
+        viewModel.getOnLoad().observe(this, new Observer<List<Task>>() {
+            @Override
+            public void onChanged(List<Task> tasks) {
+                taskListCache = tasks;
+                taskAdapter.setTaskList(tasks);
             }
-            //online
-            else {
-                Online();
-            }
+        });
+        login = getIntent().getStringExtra(PublicKeyNames.LOGIN_KEY);
+        password = getIntent().getStringExtra(PublicKeyNames.PASSWORD_KEY);
+        // offline
+        if (login == null || password == null) {
+            Offline();
         }
+        //online
+        else {
+            Online();
+        }
+    }
 
-        public void Offline () {
-            viewModel.getOnLoad().observe(this, new Observer<List<Task>>() {
-                @Override
-                public void onChanged(List<Task> tasks) {
-                    taskListCache = tasks;
-                    taskAdapter.setTaskList(tasks);
-                }
-            });
+    public void Offline() {
+        ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-            ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                    ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-                @Override
-                public boolean onMove(@NonNull RecyclerView recyclerView,
-                                      @NonNull RecyclerView.ViewHolder viewHolder,
-                                      @NonNull RecyclerView.ViewHolder target) {
-                    return false;
-                }
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
 
-                @Override
-                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                    int position = viewHolder.getAdapterPosition();
-
-                    Task task = taskAdapter.getItem(position);
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            TaskRepository.newInstance(getApplication()).taskDao().delete(task);
-                            for (int i = 0; i < taskListCache.size(); ++i) {
-                                if (taskListCache.get(i).getID() == task.getID()) {
-                                    taskListCache.remove(i);
-                                    break;
-                                }
+                Task task = taskAdapter.getItem(position);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TaskRepository.newInstance(getApplication()).taskDao().delete(task);
+                        for (int i = 0; i < taskListCache.size(); ++i) {
+                            if (taskListCache.get(i).getId() == task.getId()) {
+                                taskListCache.remove(i);
+                                break;
                             }
                         }
-                    }).start();
-                    taskAdapter.removeItemByPosition(position);
-                }
-            });
-            helper.attachToRecyclerView(binding.scrollTask);
-        }
+                    }
+                }).start();
+                taskAdapter.removeItemByPosition(position);
+            }
+        });
+        helper.attachToRecyclerView(binding.scrollTask);
+    }
 
-        private void Online () {
+    private void Online() {
+        viewModel.onFail().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Snackbar.make(binding.getRoot(), R.string.snackbar_InternetError, Snackbar.LENGTH_LONG).show();
+                Log.w(TAG, s);
+            }
+        });
 
-            viewModel.getOnLoad().observe(this, new Observer<List<Task>>() {
+        ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+
+                Task task = taskAdapter.getItem(position);
+                ApiFactory.getApiService().removeTask(login, password, task.getId()).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                        Task task = taskAdapter.getItem(position);
+                        taskAdapter.removeItemByPosition(position);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<Void> call, @NonNull Throwable throwable) {
+                        Snackbar.make(binding.getRoot(), R.string.snackbar_InternetError, Snackbar.LENGTH_LONG).show();
+                        Log.w(TAG, Objects.requireNonNull(throwable.getMessage()));
+                    }
+                });
+            }
+        });
+        helper.attachToRecyclerView(binding.scrollTask);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (login == null || password == null) {
+            TaskRepository.newInstance(getApplication()).taskDao().getTaskList().observe(this, new Observer<List<Task>>() {
                 @Override
                 public void onChanged(List<Task> tasks) {
                     taskListCache = tasks;
                     taskAdapter.setTaskList(tasks);
                 }
             });
-            viewModel.onFail().observe(this, new Observer<String>() {
-                @Override
-                public void onChanged(String s) {
-                    Snackbar.make(binding.getRoot(), R.string.snackbar_InternetError, Snackbar.LENGTH_LONG).show();
-                    Log.w(TAG, s);
-                }
-            });
-
-            ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                    ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-                @Override
-                public boolean onMove(@NonNull RecyclerView recyclerView,
-                                      @NonNull RecyclerView.ViewHolder viewHolder,
-                                      @NonNull RecyclerView.ViewHolder target) {
-                    return false;
-                }
-
-                @Override
-                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                    int position = viewHolder.getAdapterPosition();
-
-                    Task task = taskAdapter.getItem(position);
-                    ApiFactory.getApiService().removeTask(token, task.getID()).enqueue(new Callback<Void>() {
-                        @Override
-                        public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                            Task task = taskAdapter.getItem(position);
-                            taskAdapter.removeItemByPosition(position);
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Call<Void> call, @NonNull Throwable throwable) {
-                            Snackbar.make(binding.getRoot(), R.string.snackbar_InternetError, Snackbar.LENGTH_LONG).show();
-                            Log.w(TAG, Objects.requireNonNull(throwable.getMessage()));
-                        }
-                    });
-                }
-            });
-            helper.attachToRecyclerView(binding.scrollTask);
+        } else {
+            viewModel.OnlineUpdateList(login, password);
         }
-
-        @Override
-        protected void onResume () {
-            super.onResume();
-            if (token.equals("null")) {
-                TaskRepository.newInstance(getApplication()).taskDao().getTaskList().observe(this, new Observer<List<Task>>() {
-                    @Override
-                    public void onChanged(List<Task> tasks) {
-                        taskListCache = tasks;
-                        taskAdapter.setTaskList(tasks);
-                    }
-                });
-            } else {
-                viewModel.OnlineUpdateList(token);
-            }
-        }
-
-        public static Intent getIntent (Context context, String token){
-            Intent intent = new Intent(context, MainMenu.class);
-            intent.putExtra(PublicKeyNames.TOKEN_KEY, token);
-            return intent;
-        }
-
     }
+
+    public static Intent getIntent(Context context, String login, String password) {
+        Intent intent = new Intent(context, MainMenu.class);
+        intent.putExtra(PublicKeyNames.LOGIN_KEY, login);
+        intent.putExtra(PublicKeyNames.PASSWORD_KEY, password);
+        return intent;
+    }
+
+}

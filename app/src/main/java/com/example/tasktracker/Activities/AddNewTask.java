@@ -27,7 +27,8 @@ public class AddNewTask extends AppCompatActivity implements DatePickerDialog.On
     private static final String TAG = "ADD_NEW_TASK";
 
     private ActivityAddNewTaskBinding binding;
-    private static String token;
+    private String login;
+    private String password;
     private AddItemViewModel viewModel;
     private String stringDate = "";
     private String stringTime = "";
@@ -37,13 +38,6 @@ public class AddNewTask extends AppCompatActivity implements DatePickerDialog.On
         binding = ActivityAddNewTaskBinding.inflate(getLayoutInflater());
         super.onCreate(savedInstanceState);
         setContentView(binding.getRoot());
-
-        token = getIntent().getStringExtra(PublicKeyNames.TOKEN_KEY);
-        if(token == null)
-        {
-            Log.w(TAG, "Token is null");
-            return;
-        }
 
         binding.btnDatePick.setOnClickListener(v->{
             DatePickerFragment fragment = new DatePickerFragment();
@@ -63,8 +57,11 @@ public class AddNewTask extends AppCompatActivity implements DatePickerDialog.On
             }
         });
 
+
+        login = getIntent().getStringExtra(PublicKeyNames.LOGIN_KEY);
+        password = getIntent().getStringExtra(PublicKeyNames.PASSWORD_KEY);
         // Offline
-        if(token.equals("null")) {
+        if(login == null || password == null) {
             Offline();
         }
         // Online
@@ -82,19 +79,9 @@ public class AddNewTask extends AppCompatActivity implements DatePickerDialog.On
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterName, Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            if(stringDate.isEmpty()) {
-                Snackbar.make(binding.getRoot(), R.string.snackbar_EnterDate, Snackbar.LENGTH_SHORT).show();
-                return;
-            }
-            if(stringTime.isEmpty()) {
-                Snackbar.make(binding.getRoot(), R.string.snackbar_EnterDate, Snackbar.LENGTH_SHORT).show();
-                return;
-            }
 
-            String dateTime = stringDate + ' ' + stringTime;
-
-            long ID = generateID(name, description, dateTime);
-            Task task = new Task(ID, name, description, dateTime);
+            long ID = generateID(name, description, stringDate, stringTime);
+            Task task = new Task(ID, stringDate, name, description, stringTime);
             viewModel.OfflineSaveData(task);
         });
     }
@@ -116,38 +103,29 @@ public class AddNewTask extends AppCompatActivity implements DatePickerDialog.On
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterName, Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            if(stringDate.isEmpty()) {
-                Snackbar.make(binding.getRoot(), R.string.snackbar_EnterDate, Snackbar.LENGTH_SHORT).show();
-                return;
-            }
-            if(stringTime.isEmpty()) {
-                Snackbar.make(binding.getRoot(), R.string.snackbar_EnterDate, Snackbar.LENGTH_SHORT).show();
-                return;
-            }
 
-            String dateTime = stringDate + ' ' + stringTime;
-
-            long ID = generateID(name, description, dateTime);
-            Task task = new Task(ID, name, description, dateTime);
-            viewModel.OnlineSaveData(task, token);
+            long ID = generateID(name, description, stringDate, stringTime);
+            Task task = new Task(ID, stringDate, name, description, stringTime);
+            viewModel.OnlineSaveData(task, login, password);
         });
     }
 
-    private long generateID(String name, String Description, String date) {
+    private long generateID(String name, String Description, String date, String time) {
         Random rand = new Random();
 
         long key1 = name.hashCode();
         long key2 = Description.hashCode();
         long key3 = date.hashCode();
-        long key4 = rand.nextInt();
+        long key4 = time.hashCode();
+        long key5 = rand.nextInt();
 
-        long hash = key1 ^ key2 ^ key3 ^ key4;
-        return hash;
+        return key1 ^ key2 ^ key3 ^ key4 ^ key5;
     }
 
-    public static Intent getIntent(Context context, String token) {
+    public static Intent getIntent(Context context, String login, String password) {
         Intent intent = new Intent(context, AddNewTask.class);
-        intent.putExtra(PublicKeyNames.TOKEN_KEY, token);
+        intent.putExtra(PublicKeyNames.LOGIN_KEY, login);
+        intent.putExtra(PublicKeyNames.PASSWORD_KEY, password);
         return intent;
     }
 

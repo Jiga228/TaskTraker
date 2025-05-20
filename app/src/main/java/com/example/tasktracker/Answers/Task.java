@@ -1,84 +1,72 @@
 package com.example.tasktracker.Answers;
 
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
-
-import java.io.Serializable;
-import java.util.Objects;
+import com.google.gson.annotations.Expose;
 
 @Entity(tableName = "task_room")
-public class Task implements Serializable {
-    @PrimaryKey(autoGenerate = false)
+public class Task {
+
     @SerializedName("id")
-    private long ID;
-
-    @SerializedName("taskName")
-    private String TaskName;
-
-
-    @SerializedName("taskDescription")
-    private String TaskDescription;
-
+    @PrimaryKey(autoGenerate = true)
+    private long id;
     @SerializedName("taskDate")
-    private String TaskDate;
+    private String taskDate;
+    @SerializedName("taskName")
+    private String taskName;
+    @SerializedName("taskDescription")
+    private String taskDescription;
+    @SerializedName("taskTime")
+    private String taskTime;
 
-    public Task() {
-
+    public Task(long id, String taskDate, String taskName, String taskDescription, String taskTime) {
+        this.id = id;
+        this.taskDate = taskDate;
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.taskTime = taskTime;
     }
 
-    @Ignore
-    public Task(long ID, String TaskName, String TaskDescription, String TaskDate) {
-        this.TaskName = TaskName;
-        this.TaskDescription = TaskDescription;
-        this.TaskDate = TaskDate;
-        this.ID = ID;
+    public long getId() {
+        return id;
     }
 
-    public String getTaskName() {
-        return TaskName;
-    }
-
-    public String getTaskDescription() {
-        return TaskDescription;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getTaskDate() {
-        return TaskDate;
-    }
-
-    public long getID() {
-        return ID;
-    }
-
-    public void setTaskName(String taskName) {
-        TaskName = taskName;
-    }
-
-    public void setTaskDescription(String taskDescription) {
-        TaskDescription = taskDescription;
+        return taskDate;
     }
 
     public void setTaskDate(String taskDate) {
-        TaskDate = taskDate;
+        this.taskDate = taskDate;
     }
 
-    public void setID(long id) {
-        ID = id;
+    public String getTaskName() {
+        return taskName;
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return ID == task.ID && Objects.equals(TaskName, task.TaskName) && Objects.equals(TaskDescription, task.TaskDescription) && Objects.equals(TaskDate, task.TaskDate);
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(ID, TaskName, TaskDescription, TaskDate);
+    public String getTaskDescription() {
+        return taskDescription;
     }
+
+    public void setTaskDescription(String taskDescription) {
+        this.taskDescription = taskDescription;
+    }
+
+    public String getTaskTime() {
+        return taskTime;
+    }
+
+    public void setTaskTime(String taskTime) {
+        this.taskTime = taskTime;
+    }
+
 }

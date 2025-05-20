@@ -31,10 +31,9 @@
     <string name="snackbar_InvalidLogin">Incorrect login or password</string>
     <string name="snackbar_AlredyCreated">This accaunt alredy created</string>
     <string name="snackbar_InternetError">Something went wrong. Check your internet connection.</string>
-    <string name="snackebar_FailUpdateTaskList">Fail update task list!</string>
+    <string name="snackbar_FailUpdateTaskList">Fail update task list!</string>
     <string name="snackbar_EnterName">Enter task name</string>
-    <string name="snackbar_EnterDate">Enter task date</string>
-    <string name="snackbar_EnterTime">Enter time</string>
     <string name="snackbar_DataBaseError">Something went wrong.</string>
+    <string name="snackbar_BigLoginPassword">Login or password is too long.</string>
 
 </resources>

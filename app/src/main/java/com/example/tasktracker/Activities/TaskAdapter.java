@@ -41,7 +41,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         Task task = taskList.get(position);
         holder.binding.TaskName.setText(task.getTaskName());
         holder.binding.TaskDescription.setText(task.getTaskDescription());
-        holder.binding.TaskDate.setText(task.getTaskDate());
+        holder.binding.TaskDate.setText(task.getTaskDate() + ' ' + task.getTaskTime());
         holder.binding.getRoot().setOnClickListener(v->{
             if(onItemClick != null)
                 onItemClick.Click(position);

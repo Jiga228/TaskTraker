@@ -26,7 +26,7 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
 
     private ActivityEditTaskBinding binding;
     private EditTaskViewModel viewModel;
-    private String token;
+    private String login, password;
     private long taskID = -1;
     private String taskDateString;
     private String taskTimeString;
@@ -59,12 +59,20 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
             public void onChanged(Task task) {
                 binding.TaskName.setText(task.getTaskName());
                 binding.TaskDescription.setText(task.getTaskDescription());
-                String dateTime = task.getTaskDate();
-                String[] buf = dateTime.split(" ");
-                taskDateString = buf[0];
-                taskTimeString = buf[1];
-                binding.btnDatePick.setText(taskDateString);
-                binding.btnTimePick.setText(taskTimeString);
+                taskDateString = task.getTaskDate();
+                taskTimeString = task.getTaskTime();
+                if(taskDateString == null) {
+                    binding.btnDatePick.setText(R.string.button_DefaultData);
+                }
+                else {
+                    binding.btnDatePick.setText(taskDateString);
+                }
+                if(taskTimeString == null) {
+                    binding.btnTimePick.setText(R.string.button_DefaultTime);
+                }
+                else {
+                    binding.btnTimePick.setText(taskTimeString);
+                }
             }
         });
         viewModel.getClose().observe(this, new Observer<Boolean>() {
@@ -75,15 +83,11 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
             }
         });
 
-        token = intent.getStringExtra(PublicKeyNames.TOKEN_KEY);
-        if(token == null)
-        {
-            Log.w(TAG, "Token is null");
-            return;
-        }
+        login = intent.getStringExtra(PublicKeyNames.LOGIN_KEY);
+        password = intent.getStringExtra(PublicKeyNames.PASSWORD_KEY);
 
         // Offline
-        if(token.equals("null")) {
+        if(login == null || password == null) {
             Offline();
         }
         // Online
@@ -98,7 +102,7 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
             String name = binding.TaskName.getText().toString();
             String description = binding.TaskDescription.getText().toString();
 
-            Task task = new Task(taskID, name, description, taskDateString + ' ' +taskTimeString);
+            Task task = new Task(taskID, taskDateString, name, description, taskTimeString);
             viewModel.OfflineSaveData(task);
         });
     }
@@ -108,8 +112,8 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
             String name = binding.TaskName.getText().toString();
             String description = binding.TaskDescription.getText().toString();
 
-            Task task = new Task(taskID, name, description, taskDateString + ' ' +taskTimeString);
-            viewModel.OnlineSaveData(task, token);
+            Task task = new Task(taskID, taskDateString, name, description, taskTimeString);
+            viewModel.OnlineSaveData(task, login, password);
         });
         viewModel.getLiveDataFail().observe(this, new Observer<String>() {
             @Override
@@ -119,12 +123,13 @@ public class EditTask extends AppCompatActivity implements DatePickerDialog.OnDa
             }
         });
 
-        viewModel.LoadTaskOnline(token, taskID);
+        viewModel.LoadTaskOnline(login, password, taskID);
     }
 
-    public static Intent getIntent(Context context, String token, long taskID) {
+    public static Intent getIntent(Context context, String login, String password, long taskID) {
         Intent intent = new Intent(context, EditTask.class);
-        intent.putExtra(PublicKeyNames.TOKEN_KEY, token);
+        intent.putExtra(PublicKeyNames.LOGIN_KEY, login);
+        intent.putExtra(PublicKeyNames.PASSWORD_KEY, password);
         intent.putExtra(TASK_ID_KEY, taskID);
         return intent;
     }

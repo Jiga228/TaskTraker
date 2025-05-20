@@ -18,10 +18,8 @@
     <string name="snackbar_InvalidLogin">Неправильный логин или пароль</string>
     <string name="snackbar_AlredyCreated">Этот аккаунт уже создан</string>
     <string name="snackbar_InternetError">Что-то пошло не так. Проверьте подключение к интернету.</string>
-    <string name="snackebar_FailUpdateTaskList">Неудалось обновить список задач!</string>
-    <string name="snackbar_EnterName">Введите назвние</string>
-    <string name="snackbar_EnterDate">Введите дату</string>
-    <string name="snackbar_EnterTime">Введите время</string>
+    <string name="snackbar_FailUpdateTaskList">Неудалось обновить список задач!</string>
+    <string name="snackbar_EnterName">Введите нзвание</string>
     <string name="snackbar_DataBaseError">Что-то пошло не так</string>
     <string name="button_editTask">Редакировать</string>
     <string name="button_YES">Да</string>
@@ -29,4 +27,5 @@
     <string name="hint_Month">Месяц</string>
     <string name="hint_Yar">Год</string>
     <string name="hint_Hour">Час</string>
+    <string name="snackbar_BigLoginPassword">Логин или пороль слишком длинный.</string>
 </resources>

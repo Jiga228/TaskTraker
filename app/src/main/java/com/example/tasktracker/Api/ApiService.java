@@ -13,9 +13,6 @@ import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public interface ApiService {
-    @GET("user")
-    Single<LoginAnswer> checkToken(@Query("token") String token);
-
     @GET("singin")
     Single<LoginAnswer> singin(@Query("login") String login, @Query("password") String password);
 
@@ -23,14 +20,14 @@ public interface ApiService {
     Single<LoginAnswer> singup(@Query("login") String login, @Query("password") String password);
 
     @GET("user/task")
-    Single<Task> getTask(@Query("token") String token, @Query("id") long id);
+    Single<Task> getTask(@Query("login") String login, @Query("password") String password, @Query("id") long id);
 
     @GET("user/task/list")
-    Single<ArrayList<Task>> getTaskList(@Query("token") String token);
+    Single<ArrayList<Task>> getTaskList(@Query("login") String login, @Query("password") String password);
 
     @POST("user/task/edit")
-    Call<Void> editTask(@Query("token") String token, @Body Task task);
+    Call<Void> editTask(@Query("login") String login, @Query("password") String password, @Body Task task);
 
     @POST("user/task/remove")
-    Call<Void> removeTask(@Query("token") String token, @Query("id") long ID);
+    Call<Void> removeTask(@Query("login") String login, @Query("password") String password, @Query("id") long ID);
 }

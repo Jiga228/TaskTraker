@@ -28,8 +28,8 @@ public class MainMenuViewModel extends AndroidViewModel {
         super(application);
     }
 
-    public void OnlineUpdateList(String token) {
-        Single<ArrayList<Task>> single = ApiFactory.getApiService().getTaskList(token);
+    public void OnlineUpdateList(String login, String password) {
+        Single<ArrayList<Task>> single = ApiFactory.getApiService().getTaskList(login, password);
         Disposable disposable = single.subscribeOn(Schedulers.io()).subscribe(new Consumer<ArrayList<Task>>() {
             @Override
             public void accept(ArrayList<Task> tasks) throws Throwable {

@@ -45,9 +45,9 @@ public class EditTaskViewModel extends AndroidViewModel {
         }).start();
     }
 
-    public void OnlineSaveData(Task task, String token) {
+    public void OnlineSaveData(Task task, String login, String password) {
 
-        Call<Void> send = ApiFactory.getApiService().editTask(token, task);
+        Call<Void> send = ApiFactory.getApiService().editTask(login, password, task);
         send.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
@@ -72,8 +72,8 @@ public class EditTaskViewModel extends AndroidViewModel {
         });
     }
 
-    public void LoadTaskOnline(String token, long taskID) {
-        Disposable disposable = ApiFactory.getApiService().getTask(token, taskID)
+    public void LoadTaskOnline(String login, String password, long taskID) {
+        Disposable disposable = ApiFactory.getApiService().getTask(login, password, taskID)
                 .subscribeOn(Schedulers.io()).subscribe(new Consumer<Task>() {
                     @Override
                     public void accept(Task task) throws Throwable {
