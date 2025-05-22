@@ -49,10 +49,14 @@ public class LoginActivity extends AppCompatActivity {
         binding.buttonSingIn.setOnClickListener(v->{
             login = binding.fieldLogin.getText().toString();
             password = binding.fieldPassword.getText().toString();
-            if(login.isEmpty())
+            if(login.isEmpty()) {
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterLogin, Snackbar.LENGTH_SHORT).show();
-            if(password.isEmpty())
+                return;
+            }
+            if(password.isEmpty()) {
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterPassword, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
 
             SingIn();
         });
@@ -60,10 +64,14 @@ public class LoginActivity extends AppCompatActivity {
         binding.buttonSingUp.setOnClickListener(v->{
             login = binding.fieldLogin.getText().toString();
             password = binding.fieldPassword.getText().toString();
-            if(login.isEmpty())
+            if(login.isEmpty()) {
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterLogin, Snackbar.LENGTH_SHORT).show();
-            if(password.isEmpty())
+                return;
+            }
+            if(password.isEmpty()) {
                 Snackbar.make(binding.getRoot(), R.string.snackbar_EnterPassword, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
 
             SingUp();
         });
@@ -112,7 +120,11 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void accept(LoginAnswer loginAnswer) throws Throwable {
                         if(loginAnswer.getStatus().equals("big")) {
-                            Snackbar.make(binding.getRoot(), R.string.snackbar_InvalidLogin, Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(binding.getRoot(), R.string.snackbar_BigLoginPassword, Snackbar.LENGTH_SHORT).show();
+                            return;
+                        }
+                        else if(loginAnswer.getStatus().equals("big")) {
+                            Snackbar.make(binding.getRoot(), R.string.snackbar_SmallLoginPassword, Snackbar.LENGTH_SHORT).show();
                             return;
                         }
                         else if (loginAnswer.getStatus().equals("error")) {

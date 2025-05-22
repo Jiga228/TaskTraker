@@ -28,4 +28,5 @@
     <string name="hint_Yar">Year</string>
     <string name="hint_Hour">Hour</string>
     <string name="snackbar_BigLoginPassword">Login or password is too long.</string>
+    <string name="snackbar_SmallLoginPassword">Login or password is too small.</string>
 </resources>

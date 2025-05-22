@@ -35,5 +35,6 @@
     <string name="snackbar_EnterName">Enter task name</string>
     <string name="snackbar_DataBaseError">Something went wrong.</string>
     <string name="snackbar_BigLoginPassword">Login or password is too long.</string>
+    <string name="snackbar_SmallLoginPassword">Login or password is too small.</string>
 
 </resources>

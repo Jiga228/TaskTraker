@@ -13,7 +13,7 @@
     <string name="hint_TaskName">Название задачи</string>
     <string name="hint_TaskDescription">Описание</string>
     <string name="hint_Minute">Минута</string>
-    <string name="snackbar_EnterLogin">Введите логи</string>
+    <string name="snackbar_EnterLogin">Введите логин</string>
     <string name="snackbar_EnterPassword">Введите пароль</string>
     <string name="snackbar_InvalidLogin">Неправильный логин или пароль</string>
     <string name="snackbar_AlredyCreated">Этот аккаунт уже создан</string>
@@ -28,4 +28,5 @@
     <string name="hint_Yar">Год</string>
     <string name="hint_Hour">Час</string>
     <string name="snackbar_BigLoginPassword">Логин или пороль слишком длинный.</string>
+    <string name="snackbar_SmallLoginPassword">Логин или пороль слишком короткий.</string>
 </resources>
