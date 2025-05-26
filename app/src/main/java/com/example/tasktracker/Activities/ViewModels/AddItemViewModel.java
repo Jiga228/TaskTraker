@@ -37,7 +37,7 @@ public class AddItemViewModel extends AndroidViewModel {
 
     public void OnlineSaveData(Task task, String login, String password) {
 
-        Call<Void> send = ApiFactory.getApiService().editTask(login, password, task);
+        Call<Void> send = ApiFactory.getApiService().addTask(login, password, task);
         send.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {

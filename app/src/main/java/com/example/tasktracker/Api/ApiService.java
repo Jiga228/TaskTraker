@@ -25,6 +25,9 @@ public interface ApiService {
     @GET("user/task/list")
     Single<ArrayList<Task>> getTaskList(@Query("login") String login, @Query("password") String password);
 
+    @POST("user/task/add")
+    Call<Void> addTask(@Query("login") String login, @Query("password") String password, @Body Task task);
+
     @POST("user/task/edit")
     Call<Void> editTask(@Query("login") String login, @Query("password") String password, @Body Task task);
 
