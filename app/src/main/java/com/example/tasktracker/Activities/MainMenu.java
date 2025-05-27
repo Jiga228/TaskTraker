@@ -1,5 +1,8 @@
 package com.example.tasktracker.Activities;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -115,19 +118,6 @@ public class MainMenu extends AppCompatActivity {
             }
         });
 
-        binding.buttonSingOut.setOnClickListener(v -> {
-            getSharedPreferences(PublicKeyNames.TOKEN_LIST, MODE_PRIVATE).
-                    edit().
-                    remove(PublicKeyNames.LOGIN_KEY).
-                    remove(PublicKeyNames.PASSWORD_KEY).
-                    apply();
-
-            @SuppressLint("UnsafeIntentLaunch")
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        });
-
         viewModel.getOnLoad().observe(this, new Observer<List<Task>>() {
             @Override
             public void onChanged(List<Task> tasks) {
@@ -148,6 +138,22 @@ public class MainMenu extends AppCompatActivity {
     }
 
     public void Offline() {
+        binding.buttonSettings.setVisibility(INVISIBLE);
+        binding.buttonLogOut.setVisibility(VISIBLE);
+
+        binding.buttonLogOut.setOnClickListener(v -> {
+            getSharedPreferences(PublicKeyNames.TOKEN_LIST, MODE_PRIVATE).
+                    edit().
+                    remove(PublicKeyNames.LOGIN_KEY).
+                    remove(PublicKeyNames.PASSWORD_KEY).
+                    apply();
+
+            @SuppressLint("UnsafeIntentLaunch")
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
         ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -181,6 +187,11 @@ public class MainMenu extends AppCompatActivity {
     }
 
     private void Online() {
+        binding.buttonSettings.setOnClickListener(v->{
+            Intent intent = SettingsActivity.getIntent(this, login);
+            startActivity(intent);
+        });
+
         viewModel.onFail().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {

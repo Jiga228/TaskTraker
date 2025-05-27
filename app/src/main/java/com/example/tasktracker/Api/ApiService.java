@@ -1,6 +1,6 @@
 package com.example.tasktracker.Api;
 
-import com.example.tasktracker.Answers.LoginAnswer;
+import com.example.tasktracker.Answers.StatusAnswer;
 import com.example.tasktracker.Answers.Task;
 
 import java.util.ArrayList;
@@ -14,10 +14,10 @@ import retrofit2.http.Query;
 
 public interface ApiService {
     @GET("singin")
-    Single<LoginAnswer> singin(@Query("login") String login, @Query("password") String password);
+    Single<StatusAnswer> singin(@Query("login") String login, @Query("password") String password);
 
     @POST("singup")
-    Single<LoginAnswer> singup(@Query("login") String login, @Query("password") String password);
+    Single<StatusAnswer> singup(@Query("login") String login, @Query("password") String password);
 
     @GET("user/task")
     Single<Task> getTask(@Query("login") String login, @Query("password") String password, @Query("id") long id);
@@ -33,4 +33,7 @@ public interface ApiService {
 
     @POST("user/task/remove")
     Call<Void> removeTask(@Query("login") String login, @Query("password") String password, @Query("id") long ID);
+
+    @POST("user/ChangePassword")
+    Single<StatusAnswer> changePassword(@Query("oldPassword") String oldPassword, @Query("login") String login, @Query("newPassword") String newPassword);
 }

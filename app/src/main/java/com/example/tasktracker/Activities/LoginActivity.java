@@ -2,14 +2,13 @@ package com.example.tasktracker.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.tasktracker.Answers.LoginAnswer;
+import com.example.tasktracker.Answers.StatusAnswer;
 import com.example.tasktracker.Api.ApiFactory;
 import com.example.tasktracker.PublicKeyNames;
 import com.example.tasktracker.R;
@@ -84,9 +83,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void SingIn() {
         Disposable disposable = ApiFactory.getApiService().singin(login, password)
-                .subscribeOn(Schedulers.io()).subscribe(new Consumer<LoginAnswer>() {
+                .subscribeOn(Schedulers.io()).subscribe(new Consumer<StatusAnswer>() {
                     @Override
-                    public void accept(LoginAnswer loginAnswer) throws Throwable {
+                    public void accept(StatusAnswer loginAnswer) throws Throwable {
                         if(loginAnswer.getStatus().equals("big")) {
                             Snackbar.make(binding.getRoot(), R.string.snackbar_InvalidLogin, Snackbar.LENGTH_SHORT).show();
                             return;
@@ -116,9 +115,9 @@ public class LoginActivity extends AppCompatActivity {
     }
     private void SingUp() {
         Disposable disposable = ApiFactory.getApiService().singup(login, password)
-                .subscribeOn(Schedulers.io()).subscribe(new Consumer<LoginAnswer>() {
+                .subscribeOn(Schedulers.io()).subscribe(new Consumer<StatusAnswer>() {
                     @Override
-                    public void accept(LoginAnswer loginAnswer) throws Throwable {
+                    public void accept(StatusAnswer loginAnswer) throws Throwable {
                         if(loginAnswer.getStatus().equals("big")) {
                             Snackbar.make(binding.getRoot(), R.string.snackbar_BigLoginPassword, Snackbar.LENGTH_SHORT).show();
                             return;

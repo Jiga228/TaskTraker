@@ -12,6 +12,8 @@
     <string name="button_NO">No</string>
     <string name="button_DefaultData" translatable="false">DD/MM/YEAR</string>
     <string name="button_DefaultTime" translatable="false">HH/MM</string>
+    <string name="button_ChangePassword">Change password</string>
+    <string name="button_LogOut">Log out</string>
 
     <!-- Hints -->
     <string name="hint_Login">Login</string>
@@ -24,6 +26,9 @@
     <string name="hint_Yar">Year</string>
     <string name="hint_Hour">Hour</string>
     <string name="hint_Minute">Minute</string>
+    <string name="hint_OldPassword">Old password</string>
+    <string name="hint_NewPassword">New password</string>
+    <string name="hint_RetreyPassword">Retry password</string>
 
     <!-- Snackbar -->
     <string name="snackbar_EnterLogin">Enter login</string>
@@ -36,5 +41,7 @@
     <string name="snackbar_DataBaseError">Something went wrong.</string>
     <string name="snackbar_BigLoginPassword">Login or password is too long.</string>
     <string name="snackbar_SmallLoginPassword">Login or password is too small.</string>
+    <string name="snackbar_PasswordsNotEquals">Passwords not equals</string>
+    <string name="snackbar_InvalidPassword">Invalid password</string>
 
 </resources>

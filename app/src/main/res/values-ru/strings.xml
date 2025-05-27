@@ -13,6 +13,8 @@
     <string name="hint_TaskName">Название задачи</string>
     <string name="hint_TaskDescription">Описание</string>
     <string name="hint_Minute">Минута</string>
+    <string name="snackbar_PasswordsNotEquals">Пароли не софпадают</string>
+    <string name="hint_RetreyPassword">Повтори пароль</string>
     <string name="snackbar_EnterLogin">Введите логин</string>
     <string name="snackbar_EnterPassword">Введите пароль</string>
     <string name="snackbar_InvalidLogin">Неправильный логин или пароль</string>
@@ -29,4 +31,9 @@
     <string name="hint_Hour">Час</string>
     <string name="snackbar_BigLoginPassword">Логин или пороль слишком длинный.</string>
     <string name="snackbar_SmallLoginPassword">Логин или пороль слишком короткий.</string>
+    <string name="hint_OldPassword">Старый пароль</string>
+    <string name="hint_NewPassword">Новый пароль</string>
+    <string name="button_ChangePassword">Сменить пароль</string>
+    <string name="button_LogOut">Выйти</string>
+    <string name="snackbar_InvalidPassword">Не верный пароль</string>
 </resources>
