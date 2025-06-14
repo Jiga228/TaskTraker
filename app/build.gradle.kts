@@ -3,12 +3,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tasktracker"
+    namespace = "com.samsungschool.tasktracker"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.tasktracker"
+        applicationId = "com.samsungschool.tasktracker"
         minSdk = 27
+        //noinspection OldTargetApi
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -22,7 +23,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Optimisation code
+            isMinifyEnabled = true
+            // Optimization resource
+            //isShrinkResources = true
+            // Off logs
+            //isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -30,8 +36,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
