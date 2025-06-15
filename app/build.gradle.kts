@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.samsungschool.tasktracker"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.samsungschool.tasktracker"
@@ -26,9 +26,9 @@ android {
             // Optimisation code
             isMinifyEnabled = true
             // Optimization resource
-            //isShrinkResources = true
+            isShrinkResources = true
             // Off logs
-            //isDebuggable = false
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -36,8 +36,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
